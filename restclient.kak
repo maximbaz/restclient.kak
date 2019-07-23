@@ -14,7 +14,7 @@ while len(lines[0]) == 0:
     lines.pop(0)
 
 method, url = lines.pop(0).split(" ", 1)
-result = "curl -si -X{} ''{}'' ".format(method, url)
+result = "curl -Ssi -X{} ''{}'' ".format(method, url)
 
 while len(lines) > 0:
     line = lines.pop(0)
@@ -68,11 +68,12 @@ define-command restclient-execute %{
 
         nop %sh{
             (
-                echo "${kak_selections}" \
-                    | python -c "${kak_opt_restclient_curlify}" \
-                    | sh \
-                    | python -c "${kak_opt_restclient_prettify}" \
-                    > "/tmp/kak-restclient/${kak_session}.json.new"
+                {
+                    echo "${kak_selections}" \
+                        | python -c "${kak_opt_restclient_curlify}" \
+                        | sh \
+                        | python -c "${kak_opt_restclient_prettify}"
+                } >"/tmp/kak-restclient/${kak_session}.json.new" 2>&1
                 mv "/tmp/kak-restclient/${kak_session}.json.new" "/tmp/kak-restclient/${kak_session}.json"
                 echo 'evaluate-commands -client kak-restclient-response edit!' | kak -p "$kak_session"
                 echo 'execute-keys -client kak-restclient-response gg' | kak -p "$kak_session"
@@ -97,7 +98,7 @@ define-command restclient-copy-curl %{
 
 define-command -hidden restclient-select-block %{
     try %{
-        execute-keys -save-regs '' '<a-i>#<a-x><a-s><a-K>^#<ret><a-_>_Z<a-:><a-;>Gg<a-s><a-k> = <ret>'
+        execute-keys -save-regs '' '<a-i>c###,###<ret><a-x><a-s><a-K>^#<ret><a-_>_Z<a-:><a-;>Gg<a-s><a-K>^#<ret><a-k>^:.*=<ret>'
         execute-keys '<a-z>a_'
     } catch %{
         execute-keys 'z'

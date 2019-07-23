@@ -15,13 +15,15 @@ REST client for [kakoune](https://github.com/mawww/kakoune/), highly inspired by
 Write a query in kakoune in the following format:
 
 ```
-# Query blocks must begin and end with # symbol
+###
+# Query blocks must begin and end with ###
 #
 # GitHub API overview, with sending a custom header
 
 GET https://api.github.com
 User-Agent: kakoune
 
+###
 #
 # Variables must begin with : symbol and can be referenced anywhere in any following block
 #
@@ -33,6 +35,7 @@ User-Agent: kakoune
 GET https://:github/:api
 :userAgent
 
+###
 #
 # Request body must go after an empty line
 #
@@ -52,8 +55,9 @@ Content-Type: application/json
     ]
 }
 
+###
 #
-# Remember to close the final block with # symbol
+# Remember to close the final block with ###
 #
 ```
 
