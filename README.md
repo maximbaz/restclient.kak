@@ -2,7 +2,7 @@
 
 REST client for [kakoune](https://github.com/mawww/kakoune/), highly inspired by [restclient.el](https://github.com/pashky/restclient.el) for Emacs.
 
-![screenshot](https://user-images.githubusercontent.com/1177900/61414097-6d8a3380-a8ed-11e9-839b-3235baa8abc5.png)
+![screenshot](https://user-images.githubusercontent.com/1177900/61742286-0c51dc80-ad93-11e9-9b85-994957576f7f.png)
 
 ## Requirements
 
@@ -12,22 +12,21 @@ REST client for [kakoune](https://github.com/mawww/kakoune/), highly inspired by
 
 ## Usage
 
+Open a file with `.rest` extension, or just activate the module using `:set buffer filetype restclient`.
+
 Write a query in kakoune in the following format:
 
 ```
-###
 # Query blocks must begin and end with ###
-#
-# GitHub API overview, with sending a custom header
+###
 
+# GitHub API overview, with sending a custom header
 GET https://api.github.com
 User-Agent: kakoune
 
 ###
-#
-# Variables must begin with : symbol and can be referenced anywhere in any following block
-#
 
+# Variables must begin with : symbol and can be referenced anywhere in any following block
 :github = api.github.com
 :api = feeds
 :userAgent = User-Agent: kakoune
@@ -36,10 +35,8 @@ GET https://:github/:api
 :userAgent
 
 ###
-#
-# Request body must go after an empty line
-#
 
+# Request body must go after an empty line
 POST https://jira.atlassian.com/rest/api/2/search
 Content-Type: application/json
 :userAgent
@@ -55,10 +52,8 @@ Content-Type: application/json
     ]
 }
 
-###
-#
 # Remember to close the final block with ###
-#
+###
 ```
 
 Put cursor somewhere inside the block and execute `:restclient-execute`.

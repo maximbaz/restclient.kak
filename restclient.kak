@@ -1,4 +1,30 @@
-declare-option -docstring "Python code to convert block to curl command" str restclient_curlify '
+hook global BufCreate .*[.]rest %{
+    set-option buffer filetype restclient
+}
+
+hook global WinSetOption filetype=restclient %{
+    require-module restclient
+
+    hook -once -always window WinSetOption filetype=.* %{ remove-hooks window restclient-.+ }
+}
+
+hook -group restclient-highlight global WinSetOption filetype=restclient %{
+    add-highlighter window/restclient ref restclient
+    hook -once -always window WinSetOption filetype=.* %{ remove-highlighter window/restclient }
+}
+
+provide-module restclient %{
+    add-highlighter shared/restclient regions
+    add-highlighter shared/restclient/block region '^###' '$' fill header
+    add-highlighter shared/restclient/comment region '^#' '$' fill comment
+    add-highlighter shared/restclient/parts default-region group
+    add-highlighter shared/restclient/parts/method regex ^(?:GET|HEAD|POST|PUT|PATCH|DELETE|OPTIONS) 0:type
+    add-highlighter shared/restclient/parts/url regex '^(?:GET|HEAD|POST|PUT|PATCH|DELETE|OPTIONS)\s+([^\n]+)' 1:string
+    add-highlighter shared/restclient/parts/variable_value regex '^:[^\s=]+\s*=\s*([^\n]+)' 1:value
+    add-highlighter shared/restclient/parts/variable regex '^:[^\s=]+' 0:variable
+    add-highlighter shared/restclient/parts/header regex ^\S+(?=:) 0:keyword
+
+    declare-option -docstring "Python code to convert block to curl command" str restclient_curlify '
 import sys
 
 lines = [l.strip() for l in sys.stdin.read().strip().split("\n")]
@@ -31,7 +57,7 @@ for var, val in vars.items():
 print(result)
 '
 
-declare-option -docstring "Python code to prettify curl output" str restclient_prettify '
+    declare-option -docstring "Python code to prettify curl output" str restclient_prettify '
 import sys
 import json
 
@@ -45,63 +71,64 @@ if len(data) > 1:
 print(data[0])
 '
 
-define-command restclient-execute %{
-    nop %sh{
-        mkdir -p /tmp/kak-restclient
-        echo 'Loading...' > "/tmp/kak-restclient/${kak_session}.json"
-    }
-
-    try %{
-        evaluate-commands -client kak-restclient-response edit!
-    } catch %{
+    define-command restclient-execute %{
         nop %sh{
-            kitty @ new-window --no-response --window-type os kak -c "${kak_session}" -e "
-            rename-client kak-restclient-response
-            edit /tmp/kak-restclient/${kak_session}.json
-            "
-            kitty @ focus-window --no-response --match id:"${KITTY_WINDOW_ID}"
+            mkdir -p /tmp/kak-restclient
+            echo 'Loading...' > "/tmp/kak-restclient/${kak_session}.json"
+        }
+
+        try %{
+            evaluate-commands -client kak-restclient-response edit!
+        } catch %{
+            nop %sh{
+                kitty @ new-window --no-response --window-type os kak -c "${kak_session}" -e "
+                rename-client kak-restclient-response
+                edit /tmp/kak-restclient/${kak_session}.json
+                "
+                kitty @ focus-window --no-response --match id:"${KITTY_WINDOW_ID}"
+            }
+        }
+
+        evaluate-commands -draft %{
+            restclient-select-block
+
+            nop %sh{
+                (
+                    {
+                        echo "${kak_selections}" \
+                            | python -c "${kak_opt_restclient_curlify}" \
+                            | sh \
+                            | python -c "${kak_opt_restclient_prettify}"
+                    } >"/tmp/kak-restclient/${kak_session}.json.new" 2>&1
+                    mv "/tmp/kak-restclient/${kak_session}.json.new" "/tmp/kak-restclient/${kak_session}.json"
+                    echo 'evaluate-commands -client kak-restclient-response edit!' | kak -p "$kak_session"
+                    echo 'execute-keys -client kak-restclient-response gg' | kak -p "$kak_session"
+                ) < /dev/null >/dev/null 2>&1 &
+            }
         }
     }
 
-    evaluate-commands -draft %{
-        restclient-select-block
+    define-command restclient-copy-curl %{
+        evaluate-commands -draft %{
+            restclient-select-block
 
-        nop %sh{
-            (
-                {
+            nop %sh{
+                (
                     echo "${kak_selections}" \
                         | python -c "${kak_opt_restclient_curlify}" \
-                        | sh \
-                        | python -c "${kak_opt_restclient_prettify}"
-                } >"/tmp/kak-restclient/${kak_session}.json.new" 2>&1
-                mv "/tmp/kak-restclient/${kak_session}.json.new" "/tmp/kak-restclient/${kak_session}.json"
-                echo 'evaluate-commands -client kak-restclient-response edit!' | kak -p "$kak_session"
-                echo 'execute-keys -client kak-restclient-response gg' | kak -p "$kak_session"
-            ) < /dev/null >/dev/null 2>&1 &
+                        | xclip -selection clipboard -i
+                ) < /dev/null >/dev/null 2>&1 &
+            }
         }
     }
-}
 
-define-command restclient-copy-curl %{
-    evaluate-commands -draft %{
-        restclient-select-block
-
-        nop %sh{
-            (
-                echo "${kak_selections}" \
-                    | python -c "${kak_opt_restclient_curlify}" \
-                    | xclip -selection clipboard -i
-            ) < /dev/null >/dev/null 2>&1 &
+    define-command -hidden restclient-select-block %{
+        try %{
+            execute-keys -save-regs '' '<a-i>c###,###<ret><a-x><a-s><a-K>^#<ret><a-_>_Z<a-:><a-;>Gg<a-s><a-K>^#<ret><a-k>^:.*=<ret>'
+            execute-keys '<a-z>a_'
+        } catch %{
+            execute-keys 'z'
         }
+        execute-keys '<a-x>'
     }
-}
-
-define-command -hidden restclient-select-block %{
-    try %{
-        execute-keys -save-regs '' '<a-i>c###,###<ret><a-x><a-s><a-K>^#<ret><a-_>_Z<a-:><a-;>Gg<a-s><a-K>^#<ret><a-k>^:.*=<ret>'
-        execute-keys '<a-z>a_'
-    } catch %{
-        execute-keys 'z'
-    }
-    execute-keys '<a-x>'
 }
