@@ -17,13 +17,11 @@ Open a file with `.rest` extension, or just activate the module using `:set buff
 Write a query in kakoune in the following format:
 
 ```
-# Query blocks must begin and end with ###
-###
-
 # GitHub API overview, with sending a custom header
 GET https://api.github.com
 User-Agent: kakoune
 
+# Split query blocks using ###
 ###
 
 # Variables must begin with : symbol and can be referenced anywhere in any following block
@@ -51,9 +49,6 @@ Content-Type: application/json
         "assignee"
     ]
 }
-
-# Remember to close the final block with ###
-###
 ```
 
 Put cursor somewhere inside the block and execute `:restclient-execute`.

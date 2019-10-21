@@ -123,6 +123,10 @@ print(data[0])
     }
 
     define-command -hidden restclient-select-block %{
+        evaluate-commands -draft %{
+            execute-keys 'ggO###<esc>gjo###<esc>'
+        }
+
         try %{
             execute-keys -save-regs '' '<a-i>c###,###<ret><a-x><a-s><a-K>^#<ret><a-_>Z<a-:><a-;>Gg<a-s><a-k>^:.*=<ret>'
             execute-keys '<a-z>a'
@@ -130,5 +134,9 @@ print(data[0])
             execute-keys 'z'
         }
         execute-keys '<a-x>'
+
+        evaluate-commands -draft %{
+            execute-keys 'ggxdgjxd'
+        }
     }
 }
