@@ -124,8 +124,8 @@ print(data[0])
 
     define-command -hidden restclient-select-block %{
         try %{
-            execute-keys -save-regs '' '<a-i>c###,###<ret><a-x><a-s><a-K>^#<ret><a-_>_Z<a-:><a-;>Gg<a-s><a-K>^#<ret><a-k>^:.*=<ret>'
-            execute-keys '<a-z>a_'
+            execute-keys -save-regs '' '<a-i>c###,###<ret><a-x><a-s><a-K>^#<ret><a-_>Z<a-:><a-;>Gg<a-s><a-k>^:.*=<ret>'
+            execute-keys '<a-z>a'
         } catch %{
             execute-keys 'z'
         }
