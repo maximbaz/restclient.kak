@@ -6,7 +6,6 @@ REST client for [kakoune](https://github.com/mawww/kakoune/), highly inspired by
 
 ## Requirements
 
-- [kitty](https://github.com/kovidgoyal/kitty) terminal to create a split window
 - `python`
 - `xclip` to copy request as cURL command
 
