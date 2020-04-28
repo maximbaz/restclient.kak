@@ -80,7 +80,7 @@ print(data[0])
         try %{
             evaluate-commands -client kak-restclient-response edit!
         } catch %{
-            new "rename-client kak-restclient-response; edit /tmp/kak-restclient/%val{session}.json"
+            new "rename-client kak-restclient-response; edit /tmp/kak-restclient/%val{session}.json; set-option buffer autoreload true"
         }
 
         evaluate-commands -draft %{
