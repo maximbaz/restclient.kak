@@ -65,7 +65,7 @@ lines = "\n".join(sys.stdin.read().strip().splitlines())
 data = lines.split("\n\n", 1)
 if len(data) > 1:
     try:
-        print(json.dumps(json.loads(data[1]), indent=4, sort_keys=True), "\n")
+        print(json.dumps(json.loads(data[1]), indent=4, sort_keys=True, ensure_ascii=False), "\n")
     except:
         print(data[1])
 print(data[0])
