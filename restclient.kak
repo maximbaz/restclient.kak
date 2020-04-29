@@ -80,13 +80,7 @@ print(data[0])
         try %{
             evaluate-commands -client kak-restclient-response edit!
         } catch %{
-            nop %sh{
-                kitty @ new-window --no-response --window-type os kak -c "${kak_session}" -e "
-                rename-client kak-restclient-response
-                edit /tmp/kak-restclient/${kak_session}.json
-                "
-                kitty @ focus-window --no-response --match id:"${KITTY_WINDOW_ID}"
-            }
+            new "rename-client kak-restclient-response; edit /tmp/kak-restclient/%val{session}.json; set-option buffer autoreload true"
         }
 
         evaluate-commands -draft %{
