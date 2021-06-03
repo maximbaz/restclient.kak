@@ -36,8 +36,12 @@ for line in lines:
         vars[segments[0]] = segments[1]
 
 lines = [line for line in lines if not (line.startswith(":") and "=" in line)]
-while len(lines[0]) == 0:
+while len(lines) > 0 and len(lines[0]) == 0:
     lines.pop(0)
+
+if len(lines) == 0:
+    print("Error: no valid request block under the cursor", file=sys.stderr)
+    sys.exit(1)
 
 method, url = lines.pop(0).split(" ", 1)
 result = "curl -Ssi -X{} ''{}'' ".format(method, url)
