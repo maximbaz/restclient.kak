@@ -7,7 +7,6 @@ REST client for [kakoune](https://github.com/mawww/kakoune/), highly inspired by
 ## Requirements
 
 - `python`
-- `xclip` to copy request as cURL command
 
 ## Usage
 
@@ -53,3 +52,4 @@ Content-Type: application/json
 Put cursor somewhere inside the block and execute `:restclient-execute`.
 
 You can also copy the request as cURL command using `:restclient-copy-as-curl`.
+The command used to copy to clipboard is specified using `restclient_copy_command` option (`wl-copy` by default).

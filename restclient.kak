@@ -24,6 +24,8 @@ provide-module restclient %{
     add-highlighter shared/restclient/parts/variable regex '^:[^\s=]+' 0:variable
     add-highlighter shared/restclient/parts/header regex ^\S+(?=:) 0:keyword
 
+    declare-option -docstring "Command to copy to clipboard" str restclient_copy_command 'wl-copy'
+
     declare-option -docstring "Python code to convert block to curl command" str restclient_curlify '
 import sys
 
@@ -74,7 +76,6 @@ if len(data) > 1:
         print(data[1])
 print(data[0])
 '
-
     define-command restclient-execute %{
         nop %sh{
             mkdir -p /tmp/kak-restclient
@@ -114,7 +115,7 @@ print(data[0])
                 (
                     echo "${kak_selections}" \
                         | python -c "${kak_opt_restclient_curlify}" \
-                        | xclip -selection clipboard -i
+                        | ${kak_opt_restclient_copy_command}
                 ) < /dev/null >/dev/null 2>&1 &
             }
         }
