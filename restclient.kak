@@ -57,7 +57,7 @@ while len(lines) > 0:
 if len(lines) > 0:
     result += "-d ''{}''".format("".join([l.strip() for l in lines]))
 
-for var, val in vars.items():
+for var, val in sorted(vars.items(), key=lambda x: len(x[0]), reverse=True):
     result = result.replace(var, val)
 
 print(result)
